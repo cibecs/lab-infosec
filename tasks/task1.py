@@ -1,4 +1,4 @@
-#import numpy as np
+import numpy as np
 n = 5 #number of rounds
 p = 11
 
@@ -27,11 +27,31 @@ def substitution(v):
         y.append(2*v[i] % p)
     return y
 
+def transposition(y):
+    #da fare meglio con numpy
+    z = np.array(y)[[0, 1, 2, 3, 7, 6, 5, 4]]
+    return z
 
-
-
+def linear(z):
+    A = np.array([[2, 5], [1, 7]])
+    w = z.reshape(2, 4)
+    w = np.dot(A, w) % p
+    return w.flatten()
 
 subkey = subkey_generation(k)
-v = subkey_sum(u, subkey[0])
-y = substitution(v)
-print(y)
+
+w = u.copy()
+for i in range(0, n):
+    v = subkey_sum(w, subkey[i])
+    y = substitution(v)
+    z = transposition(y)
+    if i != n-1: w = linear(z)
+x = subkey_sum(z, subkey[n])
+print(x)
+
+#check
+x_test = [4, 0, 0, 9, 7, 0, 0, 3]
+if x == x_test:
+    print("Test passed")
+else:
+    print("Test failed")
