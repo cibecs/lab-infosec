@@ -1,6 +1,8 @@
 import numpy as np
 n = 5 #number of rounds
 p = 11
+multiplicative_value_of_f = 2
+A = np.array([[2, 5], [1, 7]])
 
 u = np.array([1, 0, 0, 0, 0, 0, 0, 0])
 k = np.array([1, 0, 0, 0, 0, 0, 0, 0])
@@ -21,7 +23,7 @@ def subkey_sum(w, ki):
     return (w + k[:len(w)]) % p
 
 def substitution(v):
-    return (2 * v) % p
+    return (multiplicative_value_of_f * v) % p
 
 def transposition(y):
     # flipped the second half of vector yi
@@ -30,7 +32,6 @@ def transposition(y):
 
 def linear(z):
     # linear transformation: write (by rows) vector zi to 2 × 4 matrix Z
-    A = np.array([[2, 5], [1, 7]])
     w = z.reshape(2, 4)
     w = (A @ w) % p
     return w.flatten()
