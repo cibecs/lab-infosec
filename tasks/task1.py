@@ -24,10 +24,12 @@ def substitution(v):
     return (2 * v) % p
 
 def transposition(y):
+    # flipped the second half of vector yi
     return np.array(y)[[0, 1, 2, 3, 7, 6, 5, 4]]
 
 
 def linear(z):
+    # linear transformation: write (by rows) vector zi to 2 × 4 matrix Z
     A = np.array([[2, 5], [1, 7]])
     w = z.reshape(2, 4)
     w = (A @ w) % p
