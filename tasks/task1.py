@@ -31,25 +31,33 @@ def transposition(y):
 
 
 def linear(z):
-    # linear transformation: write (by rows) vector zi to 2 × 4 matrix Z
-    w = z.reshape(2, 4)
-    w = (A @ w) % p
+    # linear transformation: write (by rows) vector z to 2 × 4 matrix Z
+    Z = z.reshape(2, 4)
+    w = (A @ Z) % p
     return w.flatten()
 
 subkey = subkey_generation(k)
 
-w = u.copy()
-for i in range(n):
-    v = subkey_sum(w, subkey[i])
-    y = substitution(v)
-    z = transposition(y)
-    if i != n-1: w = linear(z)
-x = subkey_sum(z, subkey[n])
+def encryption(u, n, subkey, p):
+    w = u.copy()
+    for i in range(n):
+        v = subkey_sum(w, subkey[i])
+        y = substitution(v)
+        z = transposition(y)
+        if i != n-1: 
+            w = linear(z)
+    x = subkey_sum(z, subkey[n])
+    return x
+
+x = encryption(u, n, subkey, p)
 print(x)
 
-#check
+
 x_test = [4, 0, 0, 9, 7, 0, 0, 3]
-if np.array_equal(x, x_test):
-    print("Test passed")
-else:
-    print("Test failed")
+def test(result, target):
+    if np.array_equal(result, target):
+        print("Test passed")
+    else:
+        print("Test failed")
+
+test(x, x_test)

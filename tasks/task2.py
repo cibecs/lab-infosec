@@ -43,17 +43,23 @@ def inverse_linear(z):
 
 subkey = subkey_generation(k)
 
-w = inverse_subkey_sum(x, subkey[n])  # Annulla l'ultima somma
-for i in range(n - 1, -1, -1):  # Decifra nei round inversi
-    z = inverse_linear(w) if i != n - 1 else w
-    y = inverse_transposition(z)
-    v = inverse_substitution(y)
-    w = inverse_subkey_sum(v, subkey[i])
-u = w.copy()
+def decryption(x, subkey, n):
+    w = inverse_subkey_sum(x, subkey[n])  # Annulla l'ultima somma
+    for i in range(n - 1, -1, -1):  # Decifra nei round inversi
+        z = inverse_linear(w) if i != n - 1 else w
+        y = inverse_transposition(z)
+        v = inverse_substitution(y)
+        w = inverse_subkey_sum(v, subkey[i])
+    return w.copy()
+
+u = decryption(x, subkey, n)
 print(u)
-#check
+
+def test(result, target):
+    if np.array_equal(result, target):
+        print("Test passed")
+    else:
+        print("Test failed")
+
 u_test = [1, 0, 0, 0, 0, 0, 0, 0]
-if np.array_equal(u, u_test):
-    print("Test passed")
-else:
-    print("Test failed")
+test(u, u_test)
