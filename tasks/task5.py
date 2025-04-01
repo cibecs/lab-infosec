@@ -1,6 +1,4 @@
-import numpy as np
-from task1 import n, p, matrix_A,k, u, test, subkey_generation, subkey_sum, transposition, linear, encryption
-
+from task1 import n,k, u, test, subkey_generation, subkey_sum, transposition, linear, encryption
 
 substitution_map = {
     0: 0,
