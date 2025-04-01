@@ -1,18 +1,6 @@
-from task1 import n,k, u, test, subkey_generation, subkey_sum, transposition, linear, encryption
+from task1 import n, k, u, test, subkey_generation, subkey_sum, transposition, linear, encryption
 
-substitution_map = {
-    0: 0,
-    1: 2, 
-    2: 4,
-    3: 8, 
-    4: 6, 
-    5: 10, 
-    6: 1, 
-    7: 3,
-    8: 5,
-    9: 7,
-    10: 9
-}
+substitution_map = {0: 0, 1: 2, 2: 4, 3: 8, 4: 6, 5: 10, 6: 1, 7: 3, 8: 5, 9: 7, 10: 9}
 
 def substitution(v):
     # substitution: apply substitution map to vector v
@@ -20,7 +8,7 @@ def substitution(v):
         v[i] = substitution_map[v[i]]
     return v
 
-def encryption(u, n):
+def encryption(u, k):
     subkey = subkey_generation(k)
     w = u.copy()
     for i in range(n):
@@ -31,8 +19,9 @@ def encryption(u, n):
             w = linear(z)
     x = subkey_sum(z, subkey[n])
     return x
+
 def main():
-    x = encryption(u, n)
+    x = encryption(u, k)
     x_test = [9, 0, 0, 0, 5, 0, 0, 6]
     test(x, x_test)
 

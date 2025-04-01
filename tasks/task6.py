@@ -1,21 +1,44 @@
-from task1 import encryption, p
+from task1 import p
+from task5 import encryption
 from task2 import modular_inverse_matrix
-from task3 import generate_matrix_A_B
 from task4 import read_pairs_from_file
 import numpy as np              
 
-x_test = [9, 0, 0, 0, 5, 0, 0, 6]
-# Ak + Bu mod p = x -->modular_inverse_matrix 
-# Ak + Bu + Cx == 0 mod p
-# Cx = -Ak - Bu mod p
-# Could be equal I
-#
+C = np.identity(8, dtype=int) # Identity matrix of size 8x8 
+#NON E' DETTO SIA IDENTITA'
 
-# Ak == -Bu -Cx mod p
-# k = A^-1(-Bu -Cx) mod p
-# check if k is equal to the original k
+# Function to generate matrices A and B
+def generate_matrix_A_B():
+    dim = 8  # Dimension of the matrices
+    # Initialize matrices A and B with zeros
+    A_matrix = np.zeros((dim, dim), dtype=int)
+    B_matrix = np.zeros((dim, dim), dtype=int)
 
-C = np.identity(8, dtype=int) # Identity matrix of size 8x8
+    # Compute matrix A: E(e_j, 0)
+    for j in range(dim):
+        # Create the unit vector e_j
+        e_j = np.zeros(dim, dtype=int)
+        e_j[j] = 1
+        # Use e_j as the key and a zero vector as the input
+        k = e_j
+        u = np.zeros(dim, dtype=int)
+        # Encrypt and store the result in the j-th column of A
+        A_matrix[:, j] = encryption(u, k)
+
+    # Compute matrix B: E(0, e_j)
+    for j in range(dim):
+        # Create the unit vector e_j
+        e_j = np.zeros(dim, dtype=int)
+        e_j[j] = 1
+        # Use a zero vector as the key and e_j as the input
+        k = np.zeros(dim, dtype=int)
+        u = e_j
+        # Encrypt and store the result in the j-th column of B
+        B_matrix[:, j] = encryption(u, k)
+
+    # Return the computed matrices A and B
+    return A_matrix, B_matrix
+
 
 def recover_one_key(u, x, A, B):
     # Compute the modular inverse of matrix A 
@@ -33,11 +56,13 @@ def recover_one_key(u, x, A, B):
 
 def find_keys(plaintexts, ciphertexts):
     A, B = generate_matrix_A_B()
+    #NON E' DETTO CHE A E B SI TROVINO COSI'
     # Iterate over all plaintext-ciphertext pairs
     for i in range(len(plaintexts)):
         u = plaintexts[i]
         x = ciphertexts[i]
         k = recover_one_key(u, x, A, B)
+        print("Key found:", k)
         count_true = 0
         count_false = 0
 

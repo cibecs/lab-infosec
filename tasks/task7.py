@@ -15,22 +15,19 @@ def subkey_generation(k):
         k1, k2, k3, k4, k5, k6
     ])
 
-def modular_inverse(v, p):
+def modular_inverse(v):
     """Calcola l'inverso moltiplicativo modulo p per ogni elemento di v"""
     inverses = []
     for x in v:
-        try:
-            x = int(x)  # Assicura che sia un intero
-            if np.gcd(x, p) != 1:  # Controlla se è coprimo con p
-                inverses.append(0)
-            inverses.append(pow(x, -1, p))  # Calcola l'inverso
-        except ValueError as e:
-            print(e)
-            inverses.append(1)  # Usa 1 come fallback per evitare errori
+        #nel nostro caso p = 11, l'unico numero non invertibile è 0
+        if np.gcd(x, p) == 1:
+            inverses.append(pow(int(x), -1, p))
+        else:
+            inverses.append(0)
     return np.array(inverses)
 
 def substitution(v):
-    v_inv = modular_inverse(v, p)  # Calcola l'inverso modulo p
+    v_inv = modular_inverse(v)  # Calcola l'inverso modulo p
     return (multiplicative_value_of_f * v_inv) % p  # Applica la substitution
 
 def encryption(u, k):
