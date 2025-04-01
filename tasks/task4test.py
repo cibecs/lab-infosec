@@ -48,7 +48,7 @@ def read_pairs_from_file(filepath):
 
 if __name__ == "__main__":
     # Carica i dati
-    filepath = "KPAdataH_CyberDucks/KPAdataH/KPApairsH_linear.txt"
+    filepath = "KPAdataH_CyberDucks/KPAdataH/test.txt"
     plaintexts, ciphertexts = read_pairs_from_file(filepath)
 
     # Matrici A e B

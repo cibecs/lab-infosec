@@ -1,11 +1,12 @@
 import numpy as np
-n = 5 #number of rounds
+n = 5  # number of rounds
 p = 11
 multiplicative_value_of_f = 2
-matrix_A = np.array([[2, 5], [1, 7]])
+A = np.array([[2, 5], [1, 7]])
 
-u = np.array([1, 0, 0, 0, 0, 0, 0, 0])
-k = np.array([1, 0, 0, 0, 0, 0, 0, 0])
+# Updated u and k
+u = np.array([2, 1, 5, 0, 10, 5, 2, 3])  # new u
+k = np.array([2, 6, 5, 9, 1, 10, 9, 3])  # new k
 
 def subkey_generation(k):
     k1 = [k[0], k[2], k[4], k[6]]
@@ -19,8 +20,8 @@ def subkey_generation(k):
     ])
 
 def subkey_sum(w, ki):
-    subkey = np.tile(ki, 2)  # k = ki + ki
-    return (w + subkey[:len(w)]) % p
+    k = np.tile(ki, 2)  # k = ki + ki
+    return (w + k[:len(w)]) % p
 
 def substitution(v):
     return (multiplicative_value_of_f * v) % p
@@ -29,13 +30,11 @@ def transposition(y):
     # flipped the second half of vector yi
     return np.array(y)[[0, 1, 2, 3, 7, 6, 5, 4]]
 
-
 def linear(z):
     # linear transformation: write (by rows) vector z to 2 × 4 matrix Z
     Z = z.reshape(2, 4)
-    w = (matrix_A @ Z) % p
+    w = (A @ Z) % p
     return w.flatten()
-
 
 def encryption(u, k):
     subkey = subkey_generation(k)
@@ -49,13 +48,13 @@ def encryption(u, k):
     x = subkey_sum(z, subkey[n])
     return x
 
-
 def test(result, target):
     print(result)
     if np.array_equal(result, target):
         print("Test passed")
     else:
         print("Test failed")
+
 def main():
     x_test = [4, 0, 0, 9, 7, 0, 0, 3]
     x = encryption(u, k)

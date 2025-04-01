@@ -1,5 +1,5 @@
 import numpy as np
-from task1 import encryption, p, u, k
+from task1 import encryption
 
 # Function to generate matrices A and B
 def generate_matrix_A_B():
@@ -33,25 +33,10 @@ def generate_matrix_A_B():
     # Return the computed matrices A and B
     return A_matrix, B_matrix
 
-def validate_matrixs(A, B, u, k):
-    # x = E(k, u) = Ak + Bu mod p
-    x_true = encryption(u, k)
-    x_calculated = (A @ k + B @ u) % p
 
-    # Check if the encryption property holds
-    if np.array_equal(x_true, x_calculated):
-        print("Test passed")
-    else:
-        print("Test failed")
-
-def main():
-    # Execute the function and print the results
-    A, B = generate_matrix_A_B()
-    print("Matrix A:")
-    print(A)
-    print("\nMatrix B:")
-    print(B)
-    validate_matrixs(A, B, u, k)
-
-if __name__ == "__main__":
-    main()
+# Execute the function and print the results
+A, B = generate_matrix_A_B()
+print("Matrix A:")
+print(A)
+print("\nMatrix B:")
+print(B)

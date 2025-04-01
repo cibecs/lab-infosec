@@ -1,25 +1,15 @@
 import numpy as np
-from task3 import generate_matrix_A_B, p
+from task3 import generate_matrix_A_B
+from task1 import encryption, p
+from task2 import modular_inverse_matrix
 
-# Function to compute the modular inverse of a matrix A modulo p
-def modular_inverse_matrix(A, p):
-    # Compute the determinant of the matrix A modulo p
-    det = int(round(np.linalg.det(A))) % p
-    # Compute the modular inverse of the determinant modulo p
-    det_inv = pow(det, -1, p)
-    # Compute the modular inverse of the matrix A using the formula:
-    # A_inv = (det_inv * adj(A)) % p, where adj(A) is the adjugate matrix
-    A_inv = np.round(det_inv * np.linalg.inv(A) * det).astype(int) % p
-    return A_inv
-
-# Function to recover the encryption key k given a plaintext u, ciphertext x, and matrices A and B
-def recover_key(x, u, A, B):
+def recover_key(u, x, A, B):
     # Compute the modular inverse of matrix A modulo p
-    A_inv = modular_inverse_matrix(A, p)
+    A_inv = modular_inverse_matrix(A)
     # Compute the product of matrix B and vector u modulo p
-    Bu = (B @ u) % p
+    Bu = (B @ u) 
     # Compute the difference between the ciphertext x and Bu modulo p
-    diff = (x - Bu) % p
+    diff = (x - Bu) 
     # Compute the key k using the formula: k = A_inv @ diff % p
     k = (A_inv @ diff) % p
     return k
@@ -50,10 +40,21 @@ def read_pairs_from_file(filepath):
             # Print an error message if there is an issue parsing the line
             print(f"Error parsing the line: {line}")
             print(e)
-
-    # Return the lists of plaintexts and ciphertexts
     return plaintexts, ciphertexts
 
+def validateKey(plaintexts, ciphertexts, k):
+    # Iterate over all plaintext-ciphertext pairs
+    for i in range(len(plaintexts)):
+        u = plaintexts[i]
+        x = ciphertexts[i]
+        # Compute the encryption of the plaintext u using the key k
+        x_test = encryption(u, k)
+        # Check if the computed ciphertext matches the given ciphertext
+        if not np.array_equal(x, x_test):
+            print("Test failed at index ", i)
+            print("expected:" , x , "actual:" , x_test)
+            return
+    print("Test passed")
 
 if __name__ == "__main__":
     # Generate the matrices A and B using the function from task3
@@ -63,45 +64,8 @@ if __name__ == "__main__":
     filepath = "KPAdataH_CyberDucks/KPAdataH/KPApairsH_linear.txt"
     # Read the plaintext-ciphertext pairs from the file
     plaintexts, ciphertexts = read_pairs_from_file(filepath)
-
-    # Use the first plaintext-ciphertext pair (u, x) for key recovery
-    u = plaintexts[0]
-    x = ciphertexts[0]
-
-    # Recover the encryption key k using the recover_key function
-    k = recover_key(x, u, A, B)
-    # Print the recovered key
-    print("Recovered key k:")
+    
+    k = recover_key(plaintexts[0], ciphertexts[0], A, B)
     print(k)
-
-
-from task1 import subkey_generation, subkey_sum, substitution, transposition, linear, n
-
-def encryption(k, u):
-    subkey = subkey_generation(k)
-    w = u.copy()
-    for i in range(n):
-        v = subkey_sum(w, subkey[i])
-        y = substitution(v)
-        z = transposition(y)
-        if i != n - 1:
-            w = linear(z)
-    x = subkey_sum(z, subkey[n])
-    return x % p
-
-# Test della chiave trovata su tutte le coppie
-correct = 0
-for i in range(len(plaintexts)):
-    u_i = plaintexts[i]
-    expected_x = ciphertexts[i]
-    computed_x = encryption(k, u_i)
-    if np.array_equal(computed_x, expected_x):
-        correct += 1
-    else:
-        print(f"❌ Mismatch alla riga {i}:")
-        print(f"u = {u_i}")
-        print(f"x atteso = {expected_x}")
-        print(f"x ottenuto = {computed_x}\n")
-
-print(f"\n✅ La chiave trovata funziona su {correct}/{len(plaintexts)} coppie.")
-
+        
+    validateKey(plaintexts, ciphertexts, k) 
