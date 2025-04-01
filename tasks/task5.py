@@ -38,7 +38,9 @@ def subkey_sum(w, ki):
 
 def substitution(v):
     # substitution: apply substitution map to vector v
-    return np.array([substitution_map[i] for i in v])
+    for i in range(len(v)):
+        v[i] = substitution_map[v[i]]
+    return v
 
 def transposition(y):
     # flipped the second half of vector yi
