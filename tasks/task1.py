@@ -36,9 +36,9 @@ def linear(z):
     w = (A @ Z) % p
     return w.flatten()
 
-subkey = subkey_generation(k)
 
-def encryption(u, n, subkey, p):
+def encryption(u, n):
+    subkey = subkey_generation(k)
     w = u.copy()
     for i in range(n):
         v = subkey_sum(w, subkey[i])
@@ -49,15 +49,17 @@ def encryption(u, n, subkey, p):
     x = subkey_sum(z, subkey[n])
     return x
 
-x = encryption(u, n, subkey, p)
-print(x)
 
-
-x_test = [4, 0, 0, 9, 7, 0, 0, 3]
 def test(result, target):
+    print(result)
     if np.array_equal(result, target):
         print("Test passed")
     else:
         print("Test failed")
+def main():
+    x_test = [4, 0, 0, 9, 7, 0, 0, 3]
+    x = encryption(u, n)
+    test(x, x_test)
 
-test(x, x_test)
+if __name__ == "__main__":
+    main()
