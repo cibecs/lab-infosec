@@ -21,9 +21,14 @@ def encryption(u, k):
     return x
 
 def main():
+    #u = [1,0,0,0,0,0,0,0]
+    u = [0,10,3,1,3,8,6,8]
+    #k = [1,0,0,0,0,0,0,0]
+    k = [5, 4, 5, 2, 4, 3, 4, 5]
     x = encryption(u, k)
-    x_test = [9, 0, 0, 0, 5, 0, 0, 6]
+    x_test = [2,7,6,8,1,7,9,3]
     test(x, x_test)
 
 if __name__ == "__main__":
     main()
+    

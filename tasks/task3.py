@@ -1,9 +1,10 @@
 import numpy as np
 from task1 import encryption, p, u, k
+    
+dim = 8  # Dimension of the matrices
 
 # Function to generate matrices A and B
 def generate_matrix_A_B():
-    dim = 8  # Dimension of the matrices
     # Initialize matrices A and B with zeros
     A_matrix = np.zeros((dim, dim), dtype=int)
     B_matrix = np.zeros((dim, dim), dtype=int)

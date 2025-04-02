@@ -1,5 +1,6 @@
 import numpy as np
 from task1 import p, n, multiplicative_value_of_f, subkey_sum, transposition, linear
+from task2 import inverse_linear, inverse_subkey_sum, inverse_transposition
 
 u = np.array([1, 0, 0, 0, 0, 0, 0, 0])
 k = np.array([1, 0, 0, 0])
@@ -41,6 +42,20 @@ def encryption(u, k):
             w = linear(z)
     x = subkey_sum(z, subkey[n])
     return x
+
+def inverse_substitution(y):
+    y_inv = (y * pow(multiplicative_value_of_f, -1, p)) % p  # Reverse substitution step
+    return modular_inverse(y_inv)  # Apply modular inverse
+
+def decryption(x, k):
+    subkey = subkey_generation(k)
+    w = inverse_subkey_sum(x, subkey[n])  # Undo the last subkey sum
+    for i in range(n - 1, -1, -1):  # Reverse the encryption rounds
+        z = inverse_linear(w) if i != n - 1 else w
+        y = inverse_transposition(z)
+        v = inverse_substitution(y)
+        w = inverse_subkey_sum(v, subkey[i])
+    return w.copy()
 
 
 def test(result, target):
