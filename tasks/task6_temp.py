@@ -1,5 +1,6 @@
 from task1 import p
-from task5 import encryption
+from task5 import encryption as en5
+from task1 import encryption as en1
 from task2 import modular_inverse_matrix
 from task4 import read_pairs_from_file
 
@@ -8,12 +9,12 @@ from task7 import modular_inverse
 import numpy as np              
 
 # Function to generate matrices A and B
-def generate_matrix_A_B():
+def generate_matrix_A_B_C():
     dim = 8  # Dimension of the matrices
     # Initialize matrices A and B with zeros
     A_matrix = np.zeros((dim, dim), dtype=int)
     B_matrix = np.zeros((dim, dim), dtype=int)
-    C_matrix = np.zeros((dim, dim), dtype=int)
+    C_matrix = 10 * np.identity(8)
 
     # Compute matrix A: E(e_j, 0)
     for j in range(dim):
@@ -24,10 +25,7 @@ def generate_matrix_A_B():
         k = e_j
         u = np.zeros(dim, dtype=int)
         # Encrypt and store the result in the j-th column of A
-        A_matrix[:, j] = encryption(u, k)
-
-        #trovo matrice C
-        C_matrix[:, j] = (A_matrix[:, j] @ k.reshape(-1, 1)) * modular_inverse(encryption(u, k)) % p
+        A_matrix[:, j] = en1(u, k)
 
     # Compute matrix B: E(0, e_j)
     for j in range(dim):
@@ -38,7 +36,7 @@ def generate_matrix_A_B():
         k = np.zeros(dim, dtype=int)
         u = e_j
         # Encrypt and store the result in the j-th column of B
-        B_matrix[:, j] = encryption(u, k)
+        B_matrix[:, j] = en1(u, k)
 
     # Return the computed matrices A and B
     return A_matrix, B_matrix, C_matrix
@@ -56,37 +54,81 @@ def recover_one_key(u, x, A, B, C):
     k = (A_inv @ diff) % p
     return k
 
+import itertools
+
+def brute_force_key_multi_delta(initial_key, plaintexts, ciphertexts, delta_range=p-1):
+    """
+    Funzione di brute-force che esplora modifiche simultanee su più valori della chiave
+    e mostra il progresso in percentuale.
+    """
+    k = initial_key.copy()
+    
+    # Definisci il range di variazioni per ogni valore della chiave (puoi modificarlo a tuo piacere)
+    deltas = list(range(-delta_range, delta_range + 1))
+    
+    # Creiamo tutte le combinazioni di delta per ogni valore della chiave
+    delta_combinations = list(itertools.product(deltas, repeat=len(k)))
+    
+    total_combinations = len(delta_combinations)  # Numero totale di combinazioni
+    print(f"Total combinations to test: {total_combinations}")
+    
+    # Prova tutte le combinazioni di delta
+    for idx, delta_combo in enumerate(delta_combinations):
+        modified_key = (np.array(k) + np.array(delta_combo)) % p
+        
+        # Controlla se questa combinazione genera ciphertext corretti
+        all_correct = True
+        for j in range(len(plaintexts)):
+            if not np.array_equal(en5(plaintexts[j], modified_key), ciphertexts[j]):
+                all_correct = False
+                break
+        
+        # Stampa il progresso
+        if idx % 100 == 0:  # Ogni 100 combinazioni stampiamo il progresso
+            progress = (idx / total_combinations) * 100
+            print(f"Progress: {progress:.2f}% ({idx}/{total_combinations})")
+        
+        if all_correct:
+            print(f"Key found at combination {idx}/{total_combinations} ({(idx / total_combinations) * 100:.2f}%)")
+            return modified_key  # Se la combinazione è corretta, restituisci la chiave
+
+    print("Brute force completed, no valid key found.")
+    return None  # Se nessuna combinazione è corretta
+
 def find_keys(plaintexts, ciphertexts):
-    A, B, C = generate_matrix_A_B()
+    A, B, C = generate_matrix_A_B_C()
     # Print the matrices A, B, and C
     print("Matrix A:\n", A)
     print("Matrix B:\n", B)
     print("Matrix C:\n", C)
 
-    #NON E' DETTO CHE A E B SI TROVINO COSI'
-    # Iterate over all plaintext-ciphertext pairs
+    #trovo la chiave del primo plaintext-ciphertext
+    k = []
     for i in range(len(plaintexts)):
         u = plaintexts[i]
         x = ciphertexts[i]
-        k = recover_one_key(u, x, A, B, C)
-        print("Key found:", k)
-        count_true = 0
-        count_false = 0
+        k.append(recover_one_key(u, x, A, B, C))
+        print("Key found:", k[i])
 
-        for j in range(len(plaintexts)):
-            u_current = plaintexts[j]
-            x_current = ciphertexts[j]
-            # Compute the encryption of the plaintext u using the key k
-            x_test = encryption(u_current, k)
-            print(x_test)
-            # Check if the computed ciphertext matches the given ciphertext
-            if not np.array_equal(x_current, x_test):
-                count_false += 1
-            else:
-                count_true += 1
-        print("Number of mismatches:", count_false)
-        print("Number of matches:", count_true)
 
+    num_keys = len(k)  # Numero di vettori in k
+    key_length = len(k[0])  # Lunghezza di ciascun vettore (8 in questo caso)
+
+    # Creiamo una lista per le medie
+    averages = []
+
+    # Calcoliamo la media per ogni indice j (0, 1, ..., 7)
+    for j in range(key_length):
+        avg = sum(k[i][j] for i in range(num_keys)) / num_keys
+        averages.append(round(avg))    
+    k = averages
+    print("Initial key approximation:", k)
+
+    refined_key = brute_force_key_multi_delta(k, plaintexts, ciphertexts)
+    if refined_key is not None:
+        print("Refined key found:", refined_key)
+    else:
+        print("Failed to find the correct key.")
         
 # Define the filepath to the file containing plaintext-ciphertext pairs
 filepath = "KPAdataH_CyberDucks/KPAdataH/KPApairsH_nearly_linear.txt"
