@@ -34,7 +34,7 @@ def look_for_matches(generated_ciphertexts, generated_plaintexts):
 
 def main():
     # Define the filepath to the file containing plaintext-ciphertext pairs
-    filepath = "KPAdataH_CyberDucks/KPAdataH/KPApairsH_linear.txt"
+    filepath = "KPAdataH_CyberDucks/KPAdataH/KPApairsH_non_linear.txt"
     
     # Read the plaintext-ciphertext pairs from the file
     original_plaintexts, original_ciphertexts = read_pairs_from_file(filepath)
