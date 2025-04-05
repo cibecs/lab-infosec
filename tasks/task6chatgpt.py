@@ -1,80 +1,103 @@
 import numpy as np
-from sympy import Matrix
 from task1 import encryption
+from task2 import modular_inverse_matrix
+from task4 import read_pairs_from_file
+from task3 import generate_matrix_A_B
 
-# === PARAMETRI ===
-P = 11  # Campo finito
-FILENAME = "KPAdataH_CyberDucks/KPAdataH/KPApairsH_nearly_linear.txt"  # <--- CAMBIA QUESTO!
+p = 11  # Modulus from Task 5
+dim = 8  # Dimension of the vectors
 
-# === STEP 1: CARICA COPPIE KNOWN PLAINTEXT ===
-def load_kpa_pairs(filename):
-    with open(filename) as f:
-        lines = f.readlines()
-        pairs = []
-        for line in lines:
-            parts = list(map(int, line.strip().split()))
-            u = parts[:8]  # Plaintext
-            x = parts[8:]  # Ciphertext
-            pairs.append((u, x))
-    return pairs
+# Recover the key using the formula:
+# k = A^-1(-C*x - B*u) mod p
+def recover_key(u, x, A, B, C, p):
+    A_inv = modular_inverse_matrix(A)
+    Bu = (B @ u) % p
+    Cx = (C @ x) % p
+    k = (A_inv @ (-Cx - Bu)) % p
+    return k
 
-# === STEP 2: STIMA MATRICE B TALE CHE x ≈ Bu (mod p) ===
-def estimate_B(pairs, p):
-    U = []
-    X = []
-    for u, x in pairs:
-        U.append(u)
-        X.append(x)
-    U = Matrix(U)       # (m x l_u)
-    X = Matrix(X)       # (m x l_x)
-    
-    B = ((U.T * U).inv_mod(p) * U.T * X) % p
-    return B.T  # Restituisce B con dimensione (l_x x l_u)
+# Validate the recovered key using the encryption function
+def validated_key(plaintexts, ciphertexts, k):
+    for i in range(len(plaintexts)):
+        u = plaintexts[i]
+        x = ciphertexts[i]
+        x_test = encryption(u, k)
+        if not np.array_equal(x, x_test):
+            print(f"Test failed for pair {i}")
+            return False
+    print("All tests passed!")
+    return True
 
-# === STEP 3: RECUPERO CHIAVE k ≈ x - Bu (mod p) ===
-def recover_key(B, u, x, p):
-    Bu = (B * Matrix(u)) % p
-    k = (Matrix(x) - Bu) % p
-    return list(map(int, k))
+# Step 1: Initialize C as Identity Matrix (initial approximation)
+def initial_C_identity(dim):
+    return np.eye(dim, dtype=int)
 
-# === STEP 4: RICERCA LOCALE VICINO ALLA CHIAVE STIMATA ===
-def local_key_search(k_guess, u, x_target, p, radius=1):
-    from itertools import product
+# Estimate C using the candidate key.
+# We use the equation: X * C^T = (A*k + B*U)^T  mod p.
+def estimate_C(B, U, X, A, k, p):
+    # For each plaintext vector u, compute the right-hand side: A*k + B*u
+    Y = np.array([ (A @ k + B @ u) % p for u in U ])
+    # X is an array of ciphertexts.
+    # We wish to solve for C in the system: X * C^T = Y.
+    # Compute the pseudo-inverse of X (as floating point, then round and take mod p)
+    X_pinv = np.linalg.pinv(X)
+    # Solve for C^T and then transpose to get C.
+    C_T = (np.round(X_pinv @ Y)) % p
+    C = C_T.T % p
+    return C
 
-    ranges = [range(max(0, val - radius), min(p, val + radius + 1)) for val in k_guess]
-    for candidate in product(*ranges):
-        if encryption(u, list(candidate)) == x_target:
-            return list(candidate)
-    return None
-
-# === MAIN ===
-def main():
-    pairs = load_kpa_pairs(FILENAME)
-
-    # Usa tutte tranne una coppia per stimare
-    B = estimate_B(pairs[:-1], P)
-    
-    # Ultima coppia per test
-    u_test, x_test = pairs[-1]
-
-    # Chiave stimata
-    k_guess = recover_key(B, u_test, x_test, P)
-    print("Chiave stimata:", k_guess)
-
-    # Verifica se funziona subito
-    x_recalc = encryption(u_test, k_guess)
-    print("x ricostruito: ", x_recalc)
-    print("x atteso:     ", x_test)
-
-    if x_recalc == x_test:
-        print("✅ La chiave stimata è corretta!")
-    else:
-        print("⚠️  Approssimazione non perfetta. Provo chiavi vicine...")
-        k_close = local_key_search(k_guess, u_test, x_test, P, radius=1)
-        if k_close:
-            print("✅ Chiave trovata per esplorazione locale:", k_close)
-        else:
-            print("❌ Nessuna chiave vicina funziona. Aumenta il raggio di ricerca.")
+# Validate if the recovered key k and matrix C satisfy the relation for all pairs:
+#   X[i] * C^T = A*k + B*U[i]  mod p.
+def validate_key(A, B, C, U, X, k, p):
+    for i in range(U.shape[0]):
+        left_side = (X[i] @ C.T) % p
+        right_side = (A @ k + B @ U[i]) % p
+        if not np.array_equal(left_side, right_side):
+            return False
+    return True
 
 if __name__ == "__main__":
-    main()
+    # Read plaintext-ciphertext pairs
+    filepath = "KPAdataH_CyberDucks/KPAdataH/KPApairsH_nearly_linear.txt"
+    plaintexts, ciphertexts = read_pairs_from_file(filepath)
+
+    # Generate matrices A and B
+    A, B = generate_matrix_A_B()
+
+    U = np.array(plaintexts)  # Plaintexts as numpy array
+    X = np.array(ciphertexts)  # Ciphertexts as numpy array
+    
+    # ---- Bootstrap process ----
+    # Step 1: Initialize C as identity
+    C = initial_C_identity(dim)
+
+    # Step 2: Use initial C to recover candidate keys from all pairs.
+    candidate_keys = []
+    for i in range(U.shape[0]):
+        k_candidate = recover_key(U[i], X[i], A, B, C, p)
+        candidate_keys.append(k_candidate)
+    # Average candidate keys (rounding to integers) to get a first candidate key.
+    k_est = np.round(np.mean(candidate_keys, axis=0)).astype(int) % p
+    print("Candidate key from initial recovery:\n", k_est)
+
+    # Step 3: Re-estimate C using the candidate key.
+    C = estimate_C(B, U, X, A, k_est, p)
+    print("Re-estimated C:\n", C)
+
+    # Optionally, one more iteration: recover keys with the new C.
+    candidate_keys = []
+    for i in range(U.shape[0]):
+        k_candidate = recover_key(U[i], X[i], A, B, C, p)
+        candidate_keys.append(k_candidate)
+    k_est = np.round(np.mean(candidate_keys, axis=0)).astype(int) % p
+    print("Refined candidate key:\n", k_est)
+
+    # Validate that the key satisfies the relation on all pairs.
+    valid_relation = validate_key(A, B, C, U, X, k_est, p)
+    print("Does the recovered key satisfy the relation (X * C^T = A*k + B*u)?", valid_relation)
+
+    # Validate the recovered key using encryption.
+    if validated_key(plaintexts, ciphertexts, k_est):
+        print("Final recovered key is valid!")
+    else:
+        print("Final recovered key is invalid.")
