@@ -1,7 +1,7 @@
 import numpy as np
 
 import itertools
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 #improves the printing of arrays
 np.set_printoptions(legacy='1.25')
@@ -43,47 +43,47 @@ def edit_distance_between_vectors(a, b):
             distance += 1
     return distance
 
-def validateIndependency (x, iterations, num_bits, max_errors_channel, max_errors_eavesdropper):
+def validateIndependency(x, iterations, num_bits, max_errors_channel, max_errors_eavesdropper):
     all_channel_errors = generateAllErrors(num_bits, max_errors_channel)
     all_eavesdropper_errors = generateAllErrors(num_bits, max_errors_eavesdropper)
-    errors_channel = {}
-    errors_eavesdropper = {}
-    for i in range(max_errors_channel):
-        errors_channel[i] = 0
-    for i in range(max_errors_eavesdropper):
-        errors_eavesdropper[i] = 0
+    errors_channel = {i: 0 for i in range(num_bits + 1)}  # Initialize for all possible edit distances
+    errors_eavesdropper = {i: 0 for i in range(num_bits + 1)}  # Initialize for all possible edit distances
 
-
-    for i in range (iterations):
+    for i in range(iterations):
         b = getRandomElement(all_channel_errors)
         c = getRandomElement(all_eavesdropper_errors)
         y = xor_between_vectors(x, b)
-        errors_channel[edit_distance_between_vectors(x, y)] +=1
+        errors_channel[edit_distance_between_vectors(x, y)] += 1
         z = xor_between_vectors(x, c)
-        errors_eavesdropper [edit_distance_between_vectors(x, z)] +=1
+        errors_eavesdropper[edit_distance_between_vectors(x, z)] += 1
     
     return errors_channel, errors_eavesdropper
 
  
 
 #histogram errors for the channel and eavesdropper
-def plot_statistic(input_label, number_of_channels, errors):
-    plt.bar(range(len(errors)), errors.values(), label="stats", color="red")
-    plt.ylim(0, max(errors.values()) + 1)
-    plt.xticks(range(len(errors)), errors.keys())
+def plot_statistic(input_label, num_bits, errors):
+    # Calcola il numero di errori possibili per ogni bit
+    possible_errors = {i: len(list(itertools.combinations(range(num_bits), i))) for i in range(num_bits + 1)}
+
+    # Crea un istogramma
+    plt.bar(possible_errors.keys(), possible_errors.values(), label="Possibili errori", color="blue")
+    plt.ylim(0, max(possible_errors.values()) + 1)
+    plt.xticks(range(len(possible_errors)), possible_errors.keys())
     plt.legend()
-    plt.ylabel("Errors per word")
-    plt.xlabel("Edit distance")
-    plt.title(f"Graph for the Statistical Independencies: {input_label}")
+    plt.ylabel("Numero di errori possibili")
+    plt.xlabel("Numero di bit errati")
+    plt.title(f"Istogramma degli errori possibili: {input_label}")
     plt.grid()
     plt.show()
 
 def main():
-    validateIndependency(a, 10, 7 , 1, 3)
-   
+    num_bits = 7  # Lunghezza del vettore
+    errors_channel, errors_eavesdropper = validateIndependency(a, 10, num_bits, 1, 3)
+    plot_statistic("Channel", num_bits, errors_channel)
+    plot_statistic("Eavesdropper", num_bits, errors_eavesdropper)
 
 if __name__ == "__main__":
-    main()    
+    main()
 
 
-    
