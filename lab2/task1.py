@@ -4,7 +4,7 @@ import itertools
 import matplotlib.pyplot as plt
 
 #improves the printing of arrays
-np.set_printoptions(legacy='1.25')
+#np.set_printoptions(legacy='1.25')
 
 a = [1, 0, 0, 1, 0, 0, 0] #input 
 

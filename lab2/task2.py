@@ -14,25 +14,14 @@ binary_strings = [
 hamming = [[int(bit) for bit in code] for code in binary_strings]
 
 def generate_codewords(u):
-    print(hamming)
-    for i in range(len(u)):
-        if u[i] == 0:
-            u.append(1)
-        else:
-            u.append(0)
     u = [0] + u
-    print(u)
     for i in hamming:
         if i[:4] == u:
             return np.array([i, xor_between_vectors(i, [1,1,1,1,1,1,1])])
     return None, None
 
-def take_codeword(t):
-    return getRandomElement(t)
-
-
 def main():
-    t = generate_codewords(u)
+    t = getRandomElement(generate_codewords(u))
     print(t)
 
 if __name__ == "__main__":
