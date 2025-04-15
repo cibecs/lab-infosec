@@ -65,19 +65,30 @@ def validateIndependency(x, n_iterations, num_bits, max_errors_channel, max_erro
 
 #histogram errors for the channel and eavesdropper
 def plot_statistic(title, errors):
-    plt.figure(figsize=(10, 6))
-    plt.bar(errors.keys(), errors.values(), color='skyblue')
-    plt.xlabel('Error Pattern (Binary)')
-    plt.ylabel('Count')
-    plt.title(title)
-    plt.xticks(rotation=45)
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    # Sort errors by count (optional but often useful)
+    sorted_errors = dict(sorted(errors.items(), key=lambda item: item[1], reverse=True))
+
+    plt.figure(figsize=(15, 4))
+    bars = plt.bar(sorted_errors.keys(), sorted_errors.values(), color='#b3071b')  # solid blue
+
+    # Add value labels above bars
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 4, height + 0.5,
+                 f'{int(height)}', ha='center', va='bottom', fontsize=9)
+
+    plt.xlabel('Error Pattern', fontsize=11)
+    plt.ylabel('Count', fontsize=11)
+    plt.title(title, fontsize=13, weight='bold')
+    plt.xticks(rotation=45, ha='right', fontsize=9)
+    plt.yticks(fontsize=9)
+    plt.grid(axis='y', linestyle='--', alpha=0.3)
     plt.tight_layout()
     plt.show()
 
 def main():
     num_bits = 7  # Lunghezza del vettore
-    errors_channel, errors_eavesdropper = validateIndependency(a, 10000, num_bits, 1, 3)
+    errors_channel, errors_eavesdropper = validateIndependency(a, 100000, num_bits, 1, 3)
     plot_statistic("Channel", errors_channel)
     plot_statistic("Eavesdropper", errors_eavesdropper)
 
