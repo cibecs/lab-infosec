@@ -34,15 +34,6 @@ def xor_between_vectors(a, b):
     result = [x ^ y for x, y in zip(a, b)]
     return result 
 
-def edit_distance_between_vectors(a, b):
-    distance = 0
-    if len(a) != len(b):
-        raise ValueError("Array length should be equal")
-    for i in range (len(a)):
-        if a[i] != b[i]:
-            distance += 1
-    return distance
-
 def are_the_same_array_index(a, all_errors):
     for i in range(len(all_errors)):
         if len(a) != len(all_errors[i]):
