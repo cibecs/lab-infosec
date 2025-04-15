@@ -69,13 +69,8 @@ def plot_statistic(title, errors):
     sorted_errors = dict(sorted(errors.items(), key=lambda item: item[1], reverse=True))
 
     plt.figure(figsize=(15, 4))
-    bars = plt.bar(sorted_errors.keys(), sorted_errors.values(), color='#b3071b')  # solid blue
+    plt.bar(sorted_errors.keys(), sorted_errors.values(), color='#b3071b')  # solid blue
 
-    # Add value labels above bars
-    for bar in bars:
-        height = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width() / 4, height + 0.5,
-                 f'{int(height)}', ha='center', va='bottom', fontsize=9)
 
     plt.xlabel('Error Pattern', fontsize=11)
     plt.ylabel('Count', fontsize=11)
