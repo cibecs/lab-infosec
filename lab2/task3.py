@@ -26,6 +26,7 @@ def find_real_input(codeword):
 def decoder(codeword):
     word = minimum_distance_with_code(codeword, hamming)
     word = find_real_input(word)
+    return word
 
 def main():
     word = decoder(input)
