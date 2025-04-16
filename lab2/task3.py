@@ -23,10 +23,12 @@ def find_real_input(codeword):
         return np.array(codeword[1:4])
     return np.array(xor_between_vectors(codeword[1:4], [1, 1, 1]))
 
+def decoder(codeword):
+    word = minimum_distance_with_code(codeword, hamming)
+    word = find_real_input(word)
 
 def main():
-    word = minimum_distance_with_code(input, hamming)
-    word = find_real_input(word)
+    word = decoder(input)
     print(word)
 
 if __name__ == "__main__":

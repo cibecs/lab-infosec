@@ -17,18 +17,9 @@ def generate_codewords(u):
     u = [0] + u
     for i in hamming:
         if i[:4] == u:
+            # the first elemnet is the prefix 
             return np.array([i, xor_between_vectors(i, [1,1,1,1,1,1,1])])
     return None, None
-
-def encoder_plus_channel_errors(u, max_error):
-    codeword = getRandomElement(generate_codewords(u))
-    if codeword is None:
-        raise ValueError("No valid codeword found for the given input.")
-    # Generate all possible error patterns
-    error = getRandomElement(generateAllErrors(NUM_BITS, max_error))
-    # Apply errors to the codewords
-    codewords_with_errors = xor_between_vectors(codeword, error)
-    return np.array(codewords_with_errors)
 
 def main():
     t = getRandomElement(generate_codewords(u))
