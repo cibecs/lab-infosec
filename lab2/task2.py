@@ -1,5 +1,5 @@
 import numpy as np 
-from task1 import xor_between_vectors, getRandomElement
+from task1 import xor_between_vectors, getRandomElement, NUM_BITS, generateAllErrors
 
 u = [0, 0, 0]
 
@@ -19,6 +19,16 @@ def generate_codewords(u):
         if i[:4] == u:
             return np.array([i, xor_between_vectors(i, [1,1,1,1,1,1,1])])
     return None, None
+
+def encoder_plus_channel_errors(u, max_error):
+    codeword = getRandomElement(generate_codewords(u))
+    if codeword is None:
+        raise ValueError("No valid codeword found for the given input.")
+    # Generate all possible error patterns
+    error = getRandomElement(generateAllErrors(NUM_BITS, max_error))
+    # Apply errors to the codewords
+    codewords_with_errors = xor_between_vectors(codeword, error)
+    return np.array(codewords_with_errors)
 
 def main():
     t = getRandomElement(generate_codewords(u))

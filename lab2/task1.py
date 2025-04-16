@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 #improves the printing of arrays
 #np.set_printoptions(legacy='1.25')
 
+#define some constants
+MAX_ERRORS_CHANNEL = 1
+MAX_ERRORS_EAVESDROPPER = 3
+NUM_BITS = 7
+
 a = [1, 0, 0, 1, 0, 0, 0] #input 
 
 #generates all possible combinations of errors within a binary array of length num_bits
@@ -82,8 +87,7 @@ def plot_statistic(title, errors):
     plt.show()
 
 def main():
-    num_bits = 7  # Lunghezza del vettore
-    errors_channel, errors_eavesdropper = validateIndependency(a, 100000, num_bits, 1, 3)
+    errors_channel, errors_eavesdropper = validateIndependency(a, 100000, NUM_BITS, MAX_ERRORS_CHANNEL, MAX_ERRORS_EAVESDROPPER)
     plot_statistic("Channel", errors_channel)
     plot_statistic("Eavesdropper", errors_eavesdropper)
 
