@@ -1,5 +1,5 @@
 import numpy as np
-from task2 import generate_codewords
+from task2 import encoder
 from task1 import plot_statistic, MAX_ERRORS_CHANNEL, MAX_ERRORS_EAVESDROPPER, xor_between_vectors, NUM_BITS, generateAllErrors, getRandomElement
 
 import itertools
@@ -8,10 +8,11 @@ import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 
+#all possible 3 bit binary inputs
 all_possible_input = [list(tupla) for tupla in itertools.product([0, 1], repeat=3)]
 
 def encoder_plus_channel_errors(u, max_error):
-    codeword = getRandomElement(generate_codewords(u))
+    codeword = encoder(u)
     if codeword is None:
         raise ValueError("No valid codeword found for the given input.")
     # Generate all possible error patterns
@@ -51,7 +52,7 @@ def plot_empirical_distribution(df):
 
 
 def main():
-    df = calculate_empirical_distribution(all_possible_input, 100000)
+    df = calculate_empirical_distribution(all_possible_input, 10000)
     plot_empirical_distribution(df)
 
 if __name__ == "__main__":
