@@ -16,7 +16,7 @@ def encoder_plus_eavesdropper(u):
     error = getRandomElement(generateAllErrors(NUM_BITS, MAX_ERRORS_EAVESDROPPER))
     return "".join(str(bit) for bit in xor_between_vectors(codeword, error))
 
-def empirical_joint_distribution(num_samples=10000):
+def empirical_joint_distribution(num_samples):
     joint_counts = Counter()
     total_samples = 0
 
@@ -54,17 +54,13 @@ def compute_mutual_information(p_uz, p_u, p_z):
     return I
 
 def main():
-    joint_counts, total_samples = empirical_joint_distribution(num_samples=1500)
+    joint_counts, total_samples = empirical_joint_distribution(num_samples=100000)
 
     p_uz, p_u, p_z, p_z_given_u = compute_distributions(joint_counts, total_samples)
 
     I_u_z = compute_mutual_information(p_uz, p_u, p_z)
 
     print(f"\nEstimated Mutual Information I(u; z): {I_u_z:.6f}")
-    if I_u_z < 0.01:
-        print("✅ u and z are empirically independent → Perfect Secrecy holds.")
-    else:
-        print("⚠️ u and z are not statistically independent → Secrecy may be compromised.")
 
 if __name__ == "__main__":
     main()
