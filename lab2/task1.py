@@ -70,12 +70,9 @@ def validateIndependency(x, n_iterations, num_bits, max_errors_channel, max_erro
 
 #histogram errors for the channel and eavesdropper
 def plot_statistic(title, errors):
-    # Sort errors by count (optional but often useful)
-    sorted_errors = dict(sorted(errors.items(), key=lambda item: item[1], reverse=True))
 
     plt.figure(figsize=(15, 4))
-    plt.bar(sorted_errors.keys(), sorted_errors.values(), color='#b3071b')  # solid blue
-
+    plt.bar(errors.keys(), errors.values(), color='#b3071b')  # solid blue
 
     plt.xlabel('Error Pattern', fontsize=11)
     plt.ylabel('Count', fontsize=11)
