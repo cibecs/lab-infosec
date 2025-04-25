@@ -2,6 +2,7 @@ import numpy as np
 from task1 import xor_between_vectors
 from task3 import decoder
 from task2 import encoder
+from task1 import plot_statistic
 
 #i define epsilon and delta as costants
 EPSILON = 0.1
@@ -43,7 +44,7 @@ def main():
         input = np.random.randint(0, 2, 3)
         output = decoder(bsc(encoder(input), DELTA))
         errors = errors + 1 if np.any(input != output) else errors
-    print(f"Number of errors in legitimate channel (with delta={DELTA}): {errors}")
+    print(f"Number of errors in eavesdropper channel (with delta={DELTA}): {errors}")
 
 
 if __name__ == "__main__":
