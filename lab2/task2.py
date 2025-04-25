@@ -14,10 +14,10 @@ binary_strings = [
 hamming = [[int(bit) for bit in code] for code in binary_strings]
 
 def generate_codewords(u):
-    u = np.insert(u, 0, 0)
+    u = np.insert(u, 0, 0) #inserts a zero on index 0
     for i in hamming:
         if np.array_equal(i[:4], u):
-            # the first elemnet is the prefix 
+            # the first element is the prefix 
             return np.array([i, xor_between_vectors(i, [1,1,1,1,1,1,1])])
     return None, None
 

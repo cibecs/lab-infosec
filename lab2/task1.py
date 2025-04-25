@@ -49,7 +49,7 @@ def are_the_same_array_index(a, all_errors):
     return -1
 
 def validateIndependency(x, n_iterations, num_bits, max_errors_channel, max_errors_eavesdropper):
-    all_channel_errors = generateAllErrors(num_bits, max_errors_channel)
+    all_channel_errors = generateAllErrors(num_bits, max_errors_channel) #returns a sequence with all possible errors
     all_eavesdropper_errors = generateAllErrors(num_bits, max_errors_eavesdropper)
     all_channel_errors_with_xor = [xor_between_vectors(x, i) for i in all_channel_errors]
     all_eavesdropper_errors_with_xor = [xor_between_vectors(x, i) for i in all_eavesdropper_errors]
@@ -60,7 +60,7 @@ def validateIndependency(x, n_iterations, num_bits, max_errors_channel, max_erro
     for i in range(n_iterations):
         b = getRandomElement(all_channel_errors_with_xor)
         c = getRandomElement(all_eavesdropper_errors_with_xor)
-        key = "".join(str(bit) for bit in b)
+        key = "".join(str(bit) for bit in b) #reconstructs the key as a string to access the map
         errors_channel[key] += 1
         key = "".join(str(bit) for bit in c)
         errors_eavesdropper[key] += 1
