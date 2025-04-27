@@ -37,20 +37,20 @@ def main():
 
     errors = 0
 
-    iterations = 5000
+    iterations = 50000
 
     for _ in range(iterations):
         input = np.random.randint(0, 2, 3)
         output = decoder(bsc(encoder(input), EPSILON))
-        errors = errors + 1 if np.any(input != output) else errors
-    print(f"Number of errors in legitimate channel (with epsilon={EPSILON}): {errors}, bit error rate:{errors/(iterations * 3)}")
+        errors += number_of_errors(input, output)
+    print(f"Number of errors in legitimate channel (with epsilon={EPSILON}): {errors}, bit error rate:{errors/(iterations * 3):.3f}")
 
-    errors = 0
+    errors = 0 
     for _ in range(iterations):
         input = np.random.randint(0, 2, 3)
         output = decoder(bsc(encoder(input), DELTA))
-        errors = errors + 1 if np.any(input != output) else errors
-    print(f"Number of errors in eavesdropper channel (with delta={DELTA}): {errors}, bit error rate:{errors/(iterations * 3)}")
+        errors += number_of_errors(input, output)
+    print(f"Number of errors in eavesdropper channel (with delta={DELTA}): {errors}, bit error rate: {errors/(iterations * 3):.3f}")
 
 
 if __name__ == "__main__":
