@@ -9,6 +9,7 @@ EPSILON = 0.1
 DELTA = 0.3
 
 def bsc(input, probability_error):
+    #returns an array of the length of the input with [0,1) values
     flip = np.random.rand(len(input)) < probability_error
     output_bits = xor_between_vectors(input, flip.astype(int))
     return output_bits
@@ -24,6 +25,8 @@ def number_of_errors(input, output):
 
 
 def main():
+ 
+
     input = np.random.randint(0, 2, 50)
     legitimate_channel = bsc(input, EPSILON)
     legitimate_channel_errors = number_of_errors(input, legitimate_channel)
@@ -33,18 +36,21 @@ def main():
     print(f"Eavesdropper channel errors: {eavesdropper_channel_errors}")
 
     errors = 0
-    for _ in range(500):
+
+    iterations = 5000
+
+    for _ in range(iterations):
         input = np.random.randint(0, 2, 3)
         output = decoder(bsc(encoder(input), EPSILON))
         errors = errors + 1 if np.any(input != output) else errors
-    print(f"Number of errors in legitimate channel (with epsilon={EPSILON}): {errors}")
+    print(f"Number of errors in legitimate channel (with epsilon={EPSILON}): {errors}, bit error rate:{errors/(iterations * 3)}")
 
     errors = 0
-    for _ in range(500):
+    for _ in range(iterations):
         input = np.random.randint(0, 2, 3)
         output = decoder(bsc(encoder(input), DELTA))
         errors = errors + 1 if np.any(input != output) else errors
-    print(f"Number of errors in eavesdropper channel (with delta={DELTA}): {errors}")
+    print(f"Number of errors in eavesdropper channel (with delta={DELTA}): {errors}, bit error rate:{errors/(iterations * 3)}")
 
 
 if __name__ == "__main__":
